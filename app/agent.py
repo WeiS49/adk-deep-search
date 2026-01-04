@@ -32,6 +32,7 @@ os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "True"
 
 from app.tools.search import search_google
 from app.tools.clock import get_current_time
+from app.tools.browse import visit_webpage
 
 root_agent = Agent(
     name="deep_search_agent",
@@ -41,19 +42,22 @@ root_agent = Agent(
     ),
     instruction="""You are a Deep Search Agent, a specialized research assistant.
     
-    Your goal is to provide comprehensive, fact-based answers by actively searching for information.
+    Your goal is to provide comprehensive, fact-based answers by actively searching and reading information.
     
     Workflows:
     1.  **Analyze**: Understand the user's question. 
         - If it asks for the ID/Date/Time, use `get_current_time` FIRST.
         - If it requires external facts, news, or data, use the Google Search tool.
     2.  **Search**: Use `search_google` to find relevant information. 
-    3.  **Synthesize**: Read the search results (snippets) and synthesize a clear, well-structured answer. 
-    4.  **Cite**: Always mention your sources based on the links provided in the search results.
+    3.  **Read**: If a search result looks promising but the snippet is insufficient, use `visit_webpage` to read the full content.
+        - PRIORITIZE reading over guessing.
+        - If the first page doesn't help, try another one.
+    4.  **Synthesize**: Synthesize a clear, well-structured answer based on the full content you read.
+    5.  **Cite**: Always mention your sources.
     
     If the user's query is simple or conversational (e.g., "Hi", "Who are you"), you can answer directly without searching.
     """,
-    tools=[search_google, get_current_time],
+    tools=[search_google, get_current_time, visit_webpage],
 )
 
 app = App(root_agent=root_agent, name="app")
