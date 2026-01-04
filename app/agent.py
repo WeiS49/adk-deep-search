@@ -30,47 +30,30 @@ os.environ["GOOGLE_CLOUD_LOCATION"] = "global"
 os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "True"
 
 
-def get_weather(query: str) -> str:
-    """Simulates a web search. Use it get information on weather.
-
-    Args:
-        query: A string containing the location to get weather information for.
-
-    Returns:
-        A string with the simulated weather information for the queried location.
-    """
-    if "sf" in query.lower() or "san francisco" in query.lower():
-        return "It's 60 degrees and foggy."
-    return "It's 90 degrees and sunny."
-
-
-def get_current_time(query: str) -> str:
-    """Simulates getting the current time for a city.
-
-    Args:
-        city: The name of the city to get the current time for.
-
-    Returns:
-        A string with the current time information.
-    """
-    if "sf" in query.lower() or "san francisco" in query.lower():
-        tz_identifier = "America/Los_Angeles"
-    else:
-        return f"Sorry, I don't have timezone information for query: {query}."
-
-    tz = ZoneInfo(tz_identifier)
-    now = datetime.datetime.now(tz)
-    return f"The current time for query {query} is {now.strftime('%Y-%m-%d %H:%M:%S %Z%z')}"
-
+from app.tools.search import search_google
+from app.tools.clock import get_current_time
 
 root_agent = Agent(
-    name="root_agent",
+    name="deep_search_agent",
     model=Gemini(
         model="gemini-3-flash-preview",
         retry_options=types.HttpRetryOptions(attempts=3),
     ),
-    instruction="You are a helpful AI assistant designed to provide accurate and useful information.",
-    tools=[get_weather, get_current_time],
+    instruction="""You are a Deep Search Agent, a specialized research assistant.
+    
+    Your goal is to provide comprehensive, fact-based answers by actively searching for information.
+    
+    Workflows:
+    1.  **Analyze**: Understand the user's question. 
+        - If it asks for the ID/Date/Time, use `get_current_time` FIRST.
+        - If it requires external facts, news, or data, use the Google Search tool.
+    2.  **Search**: Use `search_google` to find relevant information. 
+    3.  **Synthesize**: Read the search results (snippets) and synthesize a clear, well-structured answer. 
+    4.  **Cite**: Always mention your sources based on the links provided in the search results.
+    
+    If the user's query is simple or conversational (e.g., "Hi", "Who are you"), you can answer directly without searching.
+    """,
+    tools=[search_google, get_current_time],
 )
 
 app = App(root_agent=root_agent, name="app")
