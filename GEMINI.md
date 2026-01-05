@@ -11,6 +11,7 @@
 * **SDK 规范**: `docs/latest_sdk_rules.md` (包含最新的 google-genai v1beta 写法)。
 * **工具标准**: `docs/tooling_standards.md` (Anthropic 风格的 Tool 定义规范)。
 * **类型定义**: `deep-search/app/app_utils/typing.py` (复用现有的 Pydantic 模型)。
+* **架构决策**: `docs/decision_log.md` (包含项目演进的关键架构决策与上下文)。
 
 ## 2. 环境与包管理 (Environment)
 * **工具强制**: 必须且只能使用 `uv`。
@@ -25,6 +26,7 @@
 * **类型安全**: 必须使用 Python 强类型提示 (Type Hints)。
 * **异步优先**: 所有 I/O 操作（数据库、API 调用）必须是 `async` 的。
 * **代码保护**: 在修改代码时，**严禁**改动与当前任务无关的代码（保持原样的缩进和注释）。只修改必要的部分。
+* **决策记录**: 遇到重大架构变更（如引入新工具、修改 Prompt 策略、调整数据流），**必须** 在 `docs/decision_log.md` 中追加一条简短的 ADR 记录。
 
 ## 4. 安全与配置 (Security)
 * **密钥管理**: **严禁硬编码 API Key**。必须使用 `os.environ.get()` 读取。
