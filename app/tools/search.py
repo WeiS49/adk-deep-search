@@ -6,7 +6,7 @@ from googleapiclient.discovery import build # type: ignore
 # Configure logging
 logger = logging.getLogger(__name__)
 
-def search_google(query: str) -> dict[str, Any]:
+def search_google(query: str, num_results: int = 5) -> dict[str, Any]:
     """
     Performs a Google Search using the Custom Search JSON API.
     
@@ -21,6 +21,8 @@ def search_google(query: str) -> dict[str, Any]:
     Args:
         query: The search string to send to Google. Try to make this specific.
                Example: "current CEO of Google", "weather in Tokyo".
+        num_results: Number of results to return. Default is 5, max is 10.
+                     Use fewer results for faster response. more for more accurate results.
                
     Returns:
         A dictionary containing:
@@ -44,8 +46,9 @@ def search_google(query: str) -> dict[str, Any]:
     try:
         print(f"\n[DEBUG] Searching Google for: {query}")  # Explicit Debug Log
         service = build("customsearch", "v1", developerKey=api_key)
+        
         # Execute the search
-        res = service.cse().list(q=query, cx=cse_id).execute()
+        res = service.cse().list(q=query, cx=cse_id, num=num_results).execute()
         
         items = res.get("items", [])
         print(f"[DEBUG] Found {len(items)} results.") # Explicit Debug Log

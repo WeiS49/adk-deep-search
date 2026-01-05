@@ -1,5 +1,6 @@
 import trafilatura
 import logging
+import requests
 from typing import Any
 
 # Configure logging
@@ -26,10 +27,18 @@ def visit_webpage(url: str) -> dict[str, Any]:
             "original_url": "..."
         }
     """
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
     try:
         print(f"\n[DEBUG] Browsing URL: {url}") # Explicit Debug Log
         downloaded = trafilatura.fetch_url(url)
         
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        downloaded = response.content
+        # downloaded = response.content
+
         if downloaded is None:
             return {
                 "status": "error",
